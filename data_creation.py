@@ -1,23 +1,45 @@
 import os
-import numpy as np
+import random
 import pandas as pd
 
-os.makedirs("train", exist_ok=True)
-os.makedirs("test", exist_ok=True)
+def generate_temperature_data(start_date, end_date, anomalies_probability, noise_level):
+    date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+    temperature_data = []
 
-np.random.seed(0)
-dates_train = pd.date_range(start='1/1/2021', periods=100)
-temperatures_train = round(np.random.normal(20, 5, 100))
-temperatures_train[20:25] += 10
-temperatures_train += np.random.normal(0, 2, 100)
+    for date in date_range:
+        temperature = random.uniform(15, 30)
 
-df_train = pd.DataFrame({'Date': dates_train, 'Temperature': temperatures_train})
-df_train.to_csv('train/temperature_data_train.csv', index=False)
+        if random.uniform(0, 1) < anomalies_probability:
+            temperature += random.uniform(-5, 5)
 
-dates_test = pd.date_range(start='4/11/2021', periods=50)
-temperatures_test = round(np.random.normal(18, 4, 50))
-temperatures_test[10:15] += 8
-temperatures_test += np.random.normal(0, 1.5, 50)
+        temperature += random.uniform(-noise_level, noise_level)
 
-df_test = pd.DataFrame({'Date': dates_test, 'Temperature': temperatures_test})
-df_test.to_csv('test/temperature_data_test.csv', index=False)
+        temperature = round(temperature)
+
+        temperature_data.append({'date': date, 'temperature': temperature})
+
+    return temperature_data
+
+def save_data_to_file(data, folder, filename):
+    file_path = os.path.join(folder, filename)
+    data_frame = pd.DataFrame(data)
+    data_frame.to_csv(file_path, index=False)
+
+datasets_parameters = [
+    {'start_date': '2024-01-01', 'end_date': '2024-06-30', 'anomalies_probability': 0.1, 'noise_level': 2},
+    {'start_date': '2024-07-01', 'end_date': '2024-12-31', 'anomalies_probability': 0.15, 'noise_level': 3},
+    {'start_date': '2025-01-01', 'end_date': '2025-06-30', 'anomalies_probability': 0.2, 'noise_level': 2.5}
+]
+
+for i, params in enumerate(datasets_parameters, start=1):
+    train_data = generate_temperature_data(**params)
+    test_data = generate_temperature_data(**params)
+
+    train_folder = 'train'
+    test_folder = 'test'
+
+    os.makedirs(train_folder, exist_ok=True)
+    os.makedirs(test_folder, exist_ok=True)
+
+    save_data_to_file(train_data, train_folder, f'train_data_set_{i}.csv')
+    save_data_to_file(test_data, test_folder, f'test_data_set_{i}.csv')

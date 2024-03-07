@@ -39,5 +39,5 @@ for i, params in enumerate(datasets_parameters, start=1):
     os.makedirs('train', exist_ok=True)
     os.makedirs('test', exist_ok=True)
 
-    save_data_to_file(train_data, train_folder, f'train_data_set_{i}.csv')
-    save_data_to_file(test_data, test_folder, f'test_data_set_{i}.csv')
+    save_data_to_file(train_data, 'train', f'train_data_set_{i}.csv')
+    save_data_to_file(test_data, 'test', f'test_data_set_{i}.csv')
